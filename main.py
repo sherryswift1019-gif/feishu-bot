@@ -9,36 +9,37 @@ YOUR_MANAGER_API = "https://your-api.example.com"
 
 @app.route('/feishu-events', methods=['POST'])
 def handle_event():
-    """
-    处理飞书发送的事件回调
-    """
     try:
-        # 解析飞书回调数据
+        # 解析回调数据
         event_data = request.json
-        print("Received Event Data: ", event_data)
+        print("Raw Request Headers: ", request.headers)
+        print("Raw Request Data: ", request.data)
+        print("Parsed JSON Data: ", event_data)
 
-        # Challenge 请求处理（飞书回调 URL 验证时发送）
+        # Challenge 验证处理
         if 'challenge' in event_data:
-            print("Received Challenge Request")
+            print("Challenge verification received.")
             return jsonify({"challenge": event_data['challenge']})
 
-        # 普通事件处理
+        # 事件处理逻辑
         if 'event' in event_data:
             event = event_data['event']
-            event_type = event.get('type')
-            print("Event Type: ", event_type)
+            event_type = event.get('type', 'unknown')
+            print(f"Event Type: {event_type}")
 
             if event_type == 'message.receive_v1':
-                message_content = event['message']['content']
-                user_id = event['sender']['id']
-                print("Message Content: ", message_content)
-                handle_user_message(message_content, user_id)
+                message_content = event.get('message', {}).get('content', '')
+                sender_id = event.get('sender', {}).get('id', 'unknown')
+                print(f"Message Content: {message_content}")
+                print(f"Sender ID: {sender_id}")
+        else:
+            print("No 'event' field found in request data.")
 
         return jsonify({"msg": "ok"})
 
     except Exception as e:
-        print("Error occurred:", str(e))
-        return jsonify({"error": str(e)}), 500
+        print(f"[Error] Exception processing event: {str(e)}")
+        return jsonify({"msg": "error", "error": str(e)}), 500
 
 
 def handle_user_message(message_content, user_id):
