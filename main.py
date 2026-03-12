@@ -104,7 +104,7 @@ def reply_to_user(user_id, content):
 
 
 if __name__ == '__main__':
-    # 从 Render 动态环境变量获取端口，默认 3000
-    port = int(os.environ.get("PORT", 3000))
+    # 从 Render 动态环境变量获取端口，默认 3030
+    port = int(os.environ.get("PORT", 3030))
     print(f"Starting server on port {port}...")
     app.run(host='0.0.0.0', port=port)
